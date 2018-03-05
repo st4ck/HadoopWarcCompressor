@@ -44,7 +44,7 @@ public class thirdReducer extends Reducer<Text, Text, Text, Text>
 {	
 	public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException
 	{
-		// receiving offset -> group
+		// receiving <offset, List<cluster number>>
 		
 		String keyString = key.toString();
 		

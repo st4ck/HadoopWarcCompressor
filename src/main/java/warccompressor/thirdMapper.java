@@ -53,7 +53,7 @@ public class thirdMapper extends Mapper<LongWritable, Text, Text, Text>
 
 	public void map(LongWritable positionOffset, Text hashAndOffset, Context context) throws IOException, InterruptedException
 	{
-		// input format: offset1_offset2 precision
+		// input format: <offset1_offset2 precision>
 		String[] hno = hashAndOffset.toString().split("\t");
 		String[] offsets = hno[0].split("_");
 		String similarity = hno[1];
@@ -64,6 +64,7 @@ public class thirdMapper extends Mapper<LongWritable, Text, Text, Text>
 			return;
 		}
 		
+		// search if page is already assigned in a cluster
 		int a0 = assigned.indexOf(offsets[0]);
 		int a1 = assigned.indexOf(offsets[1]);
 		
@@ -103,6 +104,7 @@ public class thirdMapper extends Mapper<LongWritable, Text, Text, Text>
 			
 			currentIndex = c;
 			
+			// sending <offset, cluster number>
 			context.write(new Text(offsets[0]),new Text(String.valueOf(r+currentIndex)));
 			context.write(new Text(offsets[1]),new Text(String.valueOf(r+currentIndex)));
 			
@@ -123,6 +125,7 @@ public class thirdMapper extends Mapper<LongWritable, Text, Text, Text>
 			assigned.add(offsets[1]);
 			assignedIndex.add(currentIndex);
 			
+			// sending <offset, cluster number>
 			context.write(new Text(offsets[1]),new Text(String.valueOf(r+currentIndex)));
 		} else if ((a1 > -1) && (a0 == -1)) { // second offset in a cluster, finding them
 			// getting cluster index
@@ -136,6 +139,7 @@ public class thirdMapper extends Mapper<LongWritable, Text, Text, Text>
 			assigned.add(offsets[0]);
 			assignedIndex.add(currentIndex);
 			
+			// sending <offset, cluster number>
 			context.write(new Text(offsets[0]),new Text(String.valueOf(r+currentIndex)));
 		}
 	}

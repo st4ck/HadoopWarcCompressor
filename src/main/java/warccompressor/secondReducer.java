@@ -41,6 +41,9 @@ public class secondReducer extends Reducer<Text, Text, Text, Text>
 	private static final int requestedPrecision = 15;
 		
 	private HashMap<String, Integer> precision;
+	// using a sorted list to reduce contains() function
+	// complexity from O(n) of ArrayList to O(log(n))
+	// speeding up the entire phase
 	private NaturalSortedList<String> alreadySeen;
 	private MultipleOutputs<Text, Text> out;
 	protected void setup(Context context) throws IOException, InterruptedException
@@ -54,6 +57,7 @@ public class secondReducer extends Reducer<Text, Text, Text, Text>
 	{
 		String keyString = key.toString();
 		
+		// filling list alreadySeen with all offsets
 		if (keyString.equals("Z")) {
 			for (Text val : values) {
 				String valString = val.toString();
@@ -65,6 +69,8 @@ public class secondReducer extends Reducer<Text, Text, Text, Text>
 		} else {
 			for (Text val : values) {
 				String valString = val.toString();
+				// counting the number of occurrences offset1_offset2 and
+				// save in the list precision
 				if (precision.containsKey(keyString + "_" + valString)) {
 					precision.put(keyString + "_" + valString, precision.get(keyString + "_" + valString)+1);
 				} else {
@@ -90,11 +96,15 @@ public class secondReducer extends Reducer<Text, Text, Text, Text>
 			Map.Entry<String, Integer> entry = (Map.Entry)it.next();
 			
 			Integer prec = entry.getValue();
+			// if the item in precision has precision >= of the requested precision
+			// save to the file similar
 			if (prec >= requestedPrecision) {
 				out.write(new Text(entry.getKey()), new Text(prec.toString()), "0_similar");
 			} else if (prec == 0) {
+				// if page is not similar to any other page save to file single
 				out.write(new Text(entry.getKey()), new Text("0"), "2_single");
 			} else {
+				// otherwise (precision < req. precision) save to file alone
 				out.write(new Text(entry.getKey()), new Text("1"), "1_alone");
 			}
 		}

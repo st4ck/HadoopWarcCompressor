@@ -47,6 +47,7 @@ public class firstMapper extends Mapper<LongWritable, Text, Text, LongWritable>
 
 	public void setup(Context context) throws IOException, InterruptedException {
 		Configuration conf = context.getConfiguration();
+		// getting seeds to generate random permutations
 		String sharedSeeds = conf.get("shared-seeds");
 		String[] sharedSeed = sharedSeeds.split(",");
 		for (int i=0; i < permNumber; i++) {
@@ -60,9 +61,11 @@ public class firstMapper extends Mapper<LongWritable, Text, Text, LongWritable>
 		
 		String page = warcPage.toString();
 		
+		// Shingle the page
 		Shingle shingles = new Shingle(page);
 		int shinglesCount = shingles.getShinglesCount();
 		
+		// Generating rolling hashes
 		Fingerprint bodyFingers = new Fingerprint(shingles.getBodyShingles(),page,permNumber,context);
 		
 		BigInteger[] mins = new BigInteger[permNumber];
@@ -70,9 +73,12 @@ public class firstMapper extends Mapper<LongWritable, Text, Text, LongWritable>
 		for (int i = 0; i < permNumber; i++)
 		{
 			BigInteger bodymin = BigInteger.ZERO;
+			// Minhashing
 			bodymin = permutation[i].getMin(bodyFingers);
 			mins[i] = bodymin;
 			
+			// minhash as key, shuffle & sort will group by key
+			// & result will be <minhash, List<offsets>>
 			context.write(new Text(bodymin.toString()), positionOffset);
 			
 			if (bodymin.compareTo(BigInteger.ZERO) == 0) {
@@ -82,13 +88,6 @@ public class firstMapper extends Mapper<LongWritable, Text, Text, LongWritable>
 		
 		//System.out.println("Position: "+positionOffset+" #shingles: "+shinglesCount+" #fingerprints: "+bodyFingers.getSize()+" firstMin: "+mins[0]);
 		
-		/*System.out.println("Position: "+key);
-		
-		StringTokenizer itr = new StringTokenizer(value.toString());
-		while (itr.hasMoreTokens()) {
-			word.set(itr.nextToken());
-			context.write(word, one);
-			break;
-		}*/
+		/*System.out.println("Position: "+key);*/
 	}
 }

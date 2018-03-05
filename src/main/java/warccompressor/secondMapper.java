@@ -40,7 +40,7 @@ public class secondMapper extends Mapper<LongWritable, Text, Text, Text>
 {
 	public void map(LongWritable positionOffset, Text hashAndOffset, Context context) throws IOException, InterruptedException
 	{
-		// input format: hash\toffset1,offset2,offset3...
+		// input format: <minhash offset1,offset2,offset3...>
 		String[] hno = hashAndOffset.toString().split("\t");
 		String hash = hno[0];
 		String[] offsetsStr = hno[1].split(",");
@@ -49,10 +49,14 @@ public class secondMapper extends Mapper<LongWritable, Text, Text, Text>
 		int offsetsCount = offsetsStr.length;
 		
 		if (offsetsCount == 1) {
+			// unique minhash, no similar pages with this minhash
+			// sending with key "Z" to group pages not similar to others
 			context.write(new Text("Z"), new Text(offsetsStr[0]));
 		} else if (offsetsCount > 1) {
+			// more or equal than 2 pages with same minhashs
 			BigInteger[] offsets = new BigInteger[offsetsCount];
 			
+			// finding minimum minhash
 			offsets[0] = new BigInteger(offsetsStr[0]);
 			BigInteger minOffset = offsets[0];
 			String minOffsetStr = offsetsStr[0];

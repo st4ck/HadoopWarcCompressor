@@ -44,9 +44,17 @@ import org.apache.hadoop.mapreduce.lib.jobcontrol.JobControl;
 
 public class WarcCompressor extends Configured implements Tool
 {
+	// number of permutation (minhashing algorithm)
 	private static final int permNumber = 50;
 	
+	// number of reducer per each phase
+	private static final int firstPhaseReducer = 5;
+	private static final int secondPhaseReducer = 5;
+	private static final int thirdPhaseReducer = 5;
+	private static final int fourthPhaseReducer = 5;
+	
 	public int run(String[] args) throws Exception {
+		// job chain to run consequentially all 4 phases
 		JobControl jobControl = new JobControl("jobChain"); 
 	
 		Configuration conf1 = new Configuration(true);
@@ -57,6 +65,8 @@ public class WarcCompressor extends Configured implements Tool
 		for (int i = 0; i < permNumber; i++) sharedSeeds.append(seedGenerator.nextLong() + ",");
 		conf1.set("shared-seeds", sharedSeeds.toString().substring(0, sharedSeeds.toString().length() - 1));
 		
+		// first phase
+		// phrase shingling of each page, rolling hashing and minhashing (to compare pages)
 		Job job1 = Job.getInstance(conf1);  
 		job1.setJobName("WarcCompressor 1st phase - shingling, fingerprinting and minhashing");
 				
@@ -71,7 +81,7 @@ public class WarcCompressor extends Configured implements Tool
 		job1.setMapperClass(firstMapper.class);
 		job1.setReducerClass(firstReducer.class);
 		
-		job1.setNumReduceTasks(5);
+		job1.setNumReduceTasks(firstPhaseReducer);
 
 		FileInputFormat.addInputPath(job1, new Path(args[0]));
 		FileOutputFormat.setOutputPath(job1, new Path(args[1] + "/firstphase"));
@@ -83,6 +93,9 @@ public class WarcCompressor extends Configured implements Tool
 		
 		Configuration conf2 = new Configuration(true);
 
+		// Second phase
+		// Comparison between minhashs to group same offsets and product list of pages
+		// for each offset
 		Job job2 = Job.getInstance(conf2);
 		job2.setJarByClass(WarcCompressor.class);
 		job2.setJobName("WarcCompressor 2nd phase - comparison between minhashs");
@@ -98,7 +111,7 @@ public class WarcCompressor extends Configured implements Tool
 		job2.setMapperClass(secondMapper.class);
 		job2.setReducerClass(secondReducer.class);
 		
-		job2.setNumReduceTasks(5);
+		job2.setNumReduceTasks(secondPhaseReducer);
 
 		ControlledJob controlledJob2 = new ControlledJob(conf2);
 		controlledJob2.setJob(job2);
@@ -108,6 +121,8 @@ public class WarcCompressor extends Configured implements Tool
 		// add the job to the job control
 		jobControl.addJob(controlledJob2);
 		
+		// Third phase
+		// Clustering similar pages
 		Configuration conf3 = new Configuration(true);
 		
 		Job job3 = Job.getInstance(conf3);
@@ -125,7 +140,7 @@ public class WarcCompressor extends Configured implements Tool
 		job3.setMapperClass(thirdMapper.class);
 		job3.setReducerClass(thirdReducer.class);
 		
-		job3.setNumReduceTasks(5);
+		job3.setNumReduceTasks(thirdPhaseReducer);
 
 		ControlledJob controlledJob3 = new ControlledJob(conf3);
 		controlledJob3.setJob(job3);
@@ -135,6 +150,9 @@ public class WarcCompressor extends Configured implements Tool
 		// add the job to the job control
 		jobControl.addJob(controlledJob3);
 		
+		
+		// Fourth phase
+		// Write clusters to file compressing it
 		Configuration conf4 = new Configuration(true);
 		
 		conf4.set("warcfilepath", args[0]);
@@ -150,14 +168,23 @@ public class WarcCompressor extends Configured implements Tool
 		job4.setMapOutputValueClass(Text.class);
 		job4.setOutputFormatClass(TextOutputFormat.class);
 		TextOutputFormat.setCompressOutput(job4, true);
+		
+		// Compression with XZ Codec
 		TextOutputFormat.setOutputCompressorClass(job4, XZCodec.class);
+		
+		// Compression with GZip Codec
+		//TextOutputFormat.setOutputCompressorClass(job4, GzipCodec.class);
 		
 		job4.setMapperClass(fourthMapper.class);
 		job4.setReducerClass(fourthReducer.class);
         job4.setPartitionerClass(fourthPartitioner.class);
+		
+		// Secondary sorting used to order page offsets
+		// Otherwise the pages will be written randomly causing
+		// floating size in compressed file
 		job4.setGroupingComparatorClass(fourthGroupingComparator.class);
 		
-		job4.setNumReduceTasks(5);
+		job4.setNumReduceTasks(fourthPhaseReducer);
 
 		ControlledJob controlledJob4 = new ControlledJob(conf4);
 		controlledJob4.setJob(job4);
@@ -167,6 +194,8 @@ public class WarcCompressor extends Configured implements Tool
 		// add the job to the job control
 		jobControl.addJob(controlledJob4);
 		
+		// Monitor phases and print the state every 30sec
+		// waiting all process finish
 		Thread jobControlThread = new Thread(jobControl);
 		jobControlThread.start();
 

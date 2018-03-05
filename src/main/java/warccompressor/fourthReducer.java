@@ -47,7 +47,7 @@ public class fourthReducer extends Reducer<groupOffsetPair, Text, Text, Text>
 	
 	protected void setup(Context context) throws IOException, InterruptedException
 	{
-		Configuration conf = new Configuration();
+		Configuration conf = context.getConfiguration();
 		String warcfilepath = conf.get("warcfilepath");
 		FileSystem fs = FileSystem.get(conf);
 		conf.addResource(new Path("core-site.xml"));
@@ -59,7 +59,9 @@ public class fourthReducer extends Reducer<groupOffsetPair, Text, Text, Text>
 	
 	public void reduce(groupOffsetPair key, Iterable<Text> values, Context context) throws IOException, InterruptedException
 	{
-		// receiving group -> offsets
+		// receiving <cluster number, List<offsets>>
+		// offsets are ordered with secondary sorting
+		
 		//String keyString = key.toString();
 		
 		for (Text val : values) {

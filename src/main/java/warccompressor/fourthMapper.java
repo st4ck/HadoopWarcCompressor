@@ -39,6 +39,7 @@ public class fourthMapper extends Mapper<LongWritable, Text, groupOffsetPair, Te
 {
 	public void map(LongWritable positionOffset, Text offsetRow, Context context) throws IOException, InterruptedException
 	{
+		// input format: <offset, cluster number>
 		String[] offsetAndGroup = offsetRow.toString().split("\t");
 		groupOffsetPair reducerKey = new groupOffsetPair();
 		reducerKey.setGroup(new Text(offsetAndGroup[1]));

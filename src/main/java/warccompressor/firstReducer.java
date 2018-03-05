@@ -45,7 +45,8 @@ public class firstReducer extends Reducer<Text, LongWritable, Text, Text>
 	{
 		StringBuilder res = new StringBuilder();
 		for (LongWritable val : values) {
-			//padding offsets with leading zeros
+			// padding offsets with leading zeros
+			// easiest sorting of offsets in the fourth phase
 			res.append(String.format("%013d", val.get()) + ",");
 		}
 		
