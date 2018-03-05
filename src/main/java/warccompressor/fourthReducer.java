@@ -48,10 +48,11 @@ public class fourthReducer extends Reducer<groupOffsetPair, Text, Text, Text>
 	protected void setup(Context context) throws IOException, InterruptedException
 	{
 		Configuration conf = new Configuration();
+		String warcfilepath = conf.get("warcfilepath");
 		FileSystem fs = FileSystem.get(conf);
 		conf.addResource(new Path("core-site.xml"));
 		
-		String Filename = "/user/hadoop/input/test.warc";
+		String Filename = "/user/hadoop/"+warcfilepath;
 			
 		fsDataInputStream = fs.open(new Path(Filename));
 	}

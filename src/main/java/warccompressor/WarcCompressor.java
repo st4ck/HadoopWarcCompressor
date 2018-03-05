@@ -79,7 +79,7 @@ public class WarcCompressor extends Configured implements Tool
 		ControlledJob controlledJob1 = new ControlledJob(conf1);
 		controlledJob1.setJob(job1);
 
-		//jobControl.addJob(controlledJob1);
+		jobControl.addJob(controlledJob1);
 		
 		Configuration conf2 = new Configuration(true);
 
@@ -104,7 +104,7 @@ public class WarcCompressor extends Configured implements Tool
 		controlledJob2.setJob(job2);
 	
 		// make job2 dependent on job1
-		//controlledJob2.addDependingJob(controlledJob1); 
+		controlledJob2.addDependingJob(controlledJob1); 
 		// add the job to the job control
 		jobControl.addJob(controlledJob2);
 		
@@ -137,6 +137,8 @@ public class WarcCompressor extends Configured implements Tool
 		
 		Configuration conf4 = new Configuration(true);
 		
+		conf4.set("warcfilepath", args[0]);
+				
 		Job job4 = Job.getInstance(conf4);
 		job4.setJarByClass(WarcCompressor.class);
 		job4.setJobName("WarcCompressor 4th phase - compression");
