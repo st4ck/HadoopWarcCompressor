@@ -40,6 +40,10 @@ The compressed output files (files number depending on the number of reducer) wi
 
 Three other directories are created inside the output directory called firstphase, secondphase, thirdphase respectively containing the intermediate data between phases.
 
+## Test Files
+
+96MB file https://mega.nz/#!7I1jkBoR!OCUR6jJvlzIhO9N72L64IvW6EpkU6DmBj8yJ2T6KbcY
+Whole 47GB file https://mega.nz/#!XFslwRjA!G_JptVb3EeFVAKvPUTxjZ9ISMKoP7IuFhr6hdt5iyYg
 
 ## Tests & results
 All tests have done under a Virtual Machine with 4GB of RAM and 2 vCPU, so with a single Hadoop node
