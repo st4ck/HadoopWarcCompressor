@@ -55,7 +55,7 @@ public class WarcCompressor extends Configured implements Tool
 	
 	public int run(String[] args) throws Exception {
 		if (args.length < 3) {
-			System.out.println("Three arguments needed: input-file output-directory hdfs-user")
+			System.out.println("Three arguments needed: input-file output-directory hdfs-user");
 			System.exit(0);
 		}
 		// job chain to run consequentially all 4 phases
