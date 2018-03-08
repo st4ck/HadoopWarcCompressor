@@ -7,7 +7,7 @@ After that, similar pages are clustered and compressed together to increase comp
 
 
 ## Usage
-The used version for this project is Hadoop 1.2.1[8] with only two changes in the mapred-size.xml configuration
+The used version for this project is Hadoop 1.2.1 with only two changes in the mapred-size.xml configuration
 
 I’ve added these two properties in the file to enable the compression between mapper and reducer to speed up the process and to enable GZip codec used in the project
 
