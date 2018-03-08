@@ -49,10 +49,11 @@ public class fourthReducer extends Reducer<groupOffsetPair, Text, Text, Text>
 	{
 		Configuration conf = context.getConfiguration();
 		String warcfilepath = conf.get("warcfilepath");
+		String hdfsuser = conf.get("hdfs-user");
 		FileSystem fs = FileSystem.get(conf);
 		conf.addResource(new Path("core-site.xml"));
 		
-		String Filename = "/user/hadoop/"+warcfilepath;
+		String Filename = "/user/"+hdfsuser+"/"+warcfilepath;
 			
 		fsDataInputStream = fs.open(new Path(Filename));
 	}

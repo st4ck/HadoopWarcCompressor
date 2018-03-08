@@ -54,6 +54,10 @@ public class WarcCompressor extends Configured implements Tool
 	private static final int fourthPhaseReducer = 5;
 	
 	public int run(String[] args) throws Exception {
+		if (args.length < 3) {
+			System.out.println("Three arguments needed: input-file output-directory hdfs-user")
+			System.exit(0);
+		}
 		// job chain to run consequentially all 4 phases
 		JobControl jobControl = new JobControl("jobChain"); 
 	
@@ -156,6 +160,7 @@ public class WarcCompressor extends Configured implements Tool
 		Configuration conf4 = new Configuration(true);
 		
 		conf4.set("warcfilepath", args[0]);
+		conf4.set("hdfs-user",args[2]);
 				
 		Job job4 = Job.getInstance(conf4);
 		job4.setJarByClass(WarcCompressor.class);
