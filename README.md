@@ -1,7 +1,7 @@
 # HadoopWarcCompressor
 Compress large WARC (Web ARChive) file with LZMA2 (using java XZ library) after sorting pages by similarity
 
-Comparison between pages inside WARC have done shingling the page (splitting into phrases the body excluding html tags), generating rolling hashes of each shingle and doing min-hashing
+Comparison between pages inside WARC is done by shingling the page (splitting into phrases the body excluding html tags), generating rolling hashes of each shingle and doing min-hashing
 
 After that, similar pages are clustered and compressed together to increase compression ratio
 
