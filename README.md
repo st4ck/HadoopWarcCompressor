@@ -61,6 +61,7 @@ The results
  
 Reading and writing under VM using an HDD (not SSD) is very slow, so probably in the first and fourth phase the performance
 could be better on physical machine with better disks, more RAM and more cores
+
 XZ-LZMA2 compression is slow too, with GZip compression the writing time passes from 16 hours to about 12 hours
 
 ## Author
